@@ -1,0 +1,40 @@
+
+# LangChain Core
+langchain
+langchain-core
+langchain-classic
+langchain-text-splitters
+langchain-groq
+langchain-community
+langchain_pymupdf4llm
+
+# ChromaDB
+chromadb
+langchain-chroma
+
+# Hugging Face Embeddings
+langchain-huggingface
+sentence-transformers
+transformers
+torch
+
+# LLM Providers
+langchain-xai
+langchain-groq
+
+# Document Loaders
+pypdf
+beautifulsoup4
+requests
+python-docx
+unstructured
+
+# Environment Variables
+python-dotenv
+
+# Data Processing
+numpy
+
+# Optional: API Development
+fastapi
+uvicorn
