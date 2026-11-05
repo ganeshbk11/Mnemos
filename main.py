@@ -1,46 +1,15 @@
 from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
-from langchain_community.document_loaders  import PyPDFLoader
-from langchain_text_splitters  import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
 
+
 load_dotenv()
-
-loader = PyPDFLoader("Systemdesign.pdf") 
-docs = loader.load()
-
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-texts = text_splitter.split_documents(docs)
-
-
-
-eembeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-base-en-v1.5")
-
-vector_store = Chroma(
-    collection_name="example",
-    embedding_function = eembeddings,
-    persist_directory="chromadb"
-)
-
-# vector_store.add_documents(texts)
-# Remove-Item -Recurse -Force chromadb
-
-# results = vector_store.similarity_search({question}, k=3)
-# for r in results:
-#     print(r.metadata["page"], r.page_content)
-#     print("*************")
-question = input("Ask something: ")
-
-results = vector_store.similarity_search(question, k=3)
-    
-context = "\n\n".join(r.page_content for r in results)
 
 llm = init_chat_model(
     model = "openai/gpt-oss-120b",
     model_provider="groq"
     )
+
 
 template = ChatPromptTemplate.from_messages(
     [
@@ -59,9 +28,17 @@ Rules:
     ]
 )
 
-prompt = template.invoke({"context":context ,
-                          "question":question})
 
-answer = llm.invoke(prompt)
+def answer(question, vector_store):
+    results = vector_store.similarity_search(question, k=3)
+    # context = "\n\n".join(r.page_content for r in results)
+    context = ""
+    for r in results:
+        page = r.metadata["page"] + 11
+        context = context + "[page" + str(page) + "]\n" + r.page_content + "\n\n"
 
-print(answer.content[:500])
+
+    prompt = template.invoke({"context":context ,
+                            "question":question})
+
+    return llm.invoke(prompt).content
